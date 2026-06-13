@@ -7,7 +7,15 @@
 
 const express = require('express');
 const { getPool, pools } = require('../db');
+const rateLimit = require('express-rate-limit');
 const router = express.Router();
+
+const adminLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 100,
+    message: { error: 'Too many admin API requests, please try again later' }
+});
+router.use(adminLimiter);
 
 // Admin middleware
 function requireAdmin(req, res, next) {
@@ -232,7 +240,7 @@ router.post('/users/:id/role', requireAdmin, async (req, res) => {
             return res.status(403).json({ error: 'Only the owner can change roles.' });
         }
 
-        const pool = getPool(req.session.role || \'user\');
+        const pool = getPool(req.session.role || 'user');
         // Prevent modifying the owner
         const [targetUser] = await pool.query('SELECT role FROM users WHERE user_id = ?', [targetUserId]);
         
@@ -254,7 +262,7 @@ router.post('/users/:id/role', requireAdmin, async (req, res) => {
 // GET /api/admin/artists-list - List all artists with hidden status
 router.get('/artists-list', requireAdmin, async (req, res) => {
     try {
-        const pool = getPool(req.session.role || \'user\');
+        const pool = getPool(req.session.role || 'user');
         const [artists] = await pool.query(
             'SELECT artist_id, artist_name, country, debut_year, is_hidden FROM artists ORDER BY artist_name'
         );
@@ -267,7 +275,7 @@ router.get('/artists-list', requireAdmin, async (req, res) => {
 // POST /api/admin/artists/:id/toggle-hide - Toggle artist visibility
 router.post('/artists/:id/toggle-hide', requireAdmin, async (req, res) => {
     try {
-        const pool = getPool(req.session.role || \'user\');
+        const pool = getPool(req.session.role || 'user');
         const [existing] = await pool.query('SELECT is_hidden FROM artists WHERE artist_id = ?', [req.params.id]);
         if (existing.length === 0) return res.status(404).json({ error: 'Artist not found' });
         

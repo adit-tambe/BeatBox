@@ -243,6 +243,11 @@ async function batchRemove() {
             method: 'DELETE', headers: {'Content-Type':'application/json'},
             body: JSON.stringify({ song_ids: [...selectedSongs] })
         });
+        if (res.status === 401) {
+            alert("Your session has expired. Please log in again.");
+            window.location.reload();
+            return;
+        }
         if (!res.ok) throw new Error('Failed');
         showToast(`Songs removed`);
         toggleSelectMode();

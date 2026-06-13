@@ -1,5 +1,3 @@
-const express = require('express');
-const session = require('express-session');
 /**
  * @file server.js
  * @description Main entry point for the BeatBox backend application.
@@ -53,7 +51,7 @@ app.use(globalLimiter);
 
 // Session management for keeping track of logged-in users
 app.use(session({
-    secret: crypto.randomBytes(32).toString('hex'), // Random string used to sign the session cookie
+    secret: process.env.SESSION_SECRET || crypto.randomBytes(32).toString('hex'), // Persistent secret across restarts if defined in .env
     resave: false, // Don't save session if data hasn't changed
     saveUninitialized: false, // Only save session if we actually store data
     cookie: {
@@ -150,13 +148,13 @@ async function setupDatabase() {
             // Remove DELIMITER commands (not supported in node mysql)
             // We'll handle procedures and triggers separately
             const basicSchema = schema.split('DELIMITER')[0];
-            
+
             const pool = getPool('admin');
             const statements = basicSchema.split(';').filter(s => s.trim().length > 0);
             for (const stmt of statements) {
                 try {
                     await pool.query(stmt);
-                } catch(e) {
+                } catch (e) {
                     if (!e.message.includes('already exists') && !e.message.includes('Duplicate')) {
                         // Ignore "already exists" errors
                     }
@@ -174,18 +172,18 @@ async function setupDatabase() {
                     LEFT JOIN albums al ON s.album_id = al.album_id
                     LEFT JOIN genres g ON s.genre_id = g.genre_id`);
                 console.log('✅ View created');
-            } catch(e) {}
+            } catch (e) { }
 
             // Migrate existing schema — add new columns if missing (safe for upgrades)
-            try { await pool.query('ALTER TABLE songs ADD COLUMN IF NOT EXISTS image_url VARCHAR(500) DEFAULT NULL'); } catch(e) {}
-            try { await pool.query('ALTER TABLE songs ADD COLUMN IF NOT EXISTS jamendo_id INT DEFAULT NULL'); } catch(e) {}
+            try { await pool.query('ALTER TABLE songs ADD COLUMN IF NOT EXISTS image_url VARCHAR(500) DEFAULT NULL'); } catch (e) { }
+            try { await pool.query('ALTER TABLE songs ADD COLUMN IF NOT EXISTS jamendo_id INT DEFAULT NULL'); } catch (e) { }
 
             // Create trigger
             try {
                 await pool.query(`DROP TRIGGER IF EXISTS after_listen_insert`);
                 await pool.query(`CREATE TRIGGER after_listen_insert AFTER INSERT ON listens FOR EACH ROW UPDATE songs SET play_count = play_count + 1 WHERE song_id = NEW.song_id`);
                 console.log('✅ Trigger created');
-            } catch(e) {}
+            } catch (e) { }
 
             // Check if data exists
             const [songCount] = await pool.query('SELECT COUNT(*) as c FROM songs');
@@ -197,7 +195,7 @@ async function setupDatabase() {
                     for (const stmt of seedStatements) {
                         try {
                             if (stmt.trim().length > 5) await pool.query(stmt);
-                        } catch(e) {
+                        } catch (e) {
                             if (!e.message.includes('Duplicate')) {
                                 console.log('Seed warning:', e.message.substring(0, 80));
                             }
@@ -219,7 +217,7 @@ async function setupDatabase() {
             for (const stmt of userStatements) {
                 try {
                     if (stmt.trim().length > 5) await rootPool.query(stmt);
-                } catch(e) {
+                } catch (e) {
                     // Users might already exist
                 }
             }
@@ -238,7 +236,7 @@ async function setupDatabase() {
         console.log('   Create a file "db.config.json" with: {"password": "YOUR_PASSWORD"}');
         console.log('   Or run: node server.js --db-pass=YOUR_PASSWORD\n');
     } finally {
-        if (rootPool) try { await rootPool.end(); } catch(e) {}
+        if (rootPool) try { await rootPool.end(); } catch (e) { }
     }
 }
 

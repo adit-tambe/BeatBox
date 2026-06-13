@@ -5,7 +5,15 @@
 
 const express = require('express');
 const { getPool } = require('../db');
+const rateLimit = require('express-rate-limit');
 const router = express.Router();
+
+const playlistsLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 100,
+    message: { error: 'Too many requests to playlists API, please try again later' }
+});
+router.use(playlistsLimiter);
 
 // Auth middleware
 function requireAuth(req, res, next) {
@@ -16,7 +24,7 @@ function requireAuth(req, res, next) {
 // GET /api/playlists - Get user's playlists
 router.get('/', requireAuth, async (req, res) => {
     try {
-        const pool = getPool(req.session.role || \'user\');
+        const pool = getPool(req.session.role || 'user');
         const [playlists] = await pool.query(`
             SELECT p.*, COUNT(ps.song_id) as song_count
             FROM playlists p
@@ -33,7 +41,7 @@ router.get('/', requireAuth, async (req, res) => {
 // POST /api/playlists - Create playlist
 router.post('/', requireAuth, async (req, res) => {
     try {
-        const pool = getPool(req.session.role || \'user\');
+        const pool = getPool(req.session.role || 'user');
         const { playlist_name } = req.body;
         if (!playlist_name) return res.status(400).json({ error: 'Playlist name is required' });
 
@@ -50,7 +58,7 @@ router.post('/', requireAuth, async (req, res) => {
 // GET /api/playlists/:id/songs - Get songs in a playlist
 router.get('/:id/songs', requireAuth, async (req, res) => {
     try {
-        const pool = getPool(req.session.role || \'user\');
+        const pool = getPool(req.session.role || 'user');
         const [songs] = await pool.query(`
             SELECT s.song_id, s.title AS song_title, s.duration, s.play_count,
                    s.image_url, s.jamendo_id,
@@ -72,7 +80,7 @@ router.get('/:id/songs', requireAuth, async (req, res) => {
 // POST /api/playlists/:id/songs - Add song to playlist
 router.post('/:id/songs', requireAuth, async (req, res) => {
     try {
-        const pool = getPool(req.session.role || \'user\');
+        const pool = getPool(req.session.role || 'user');
         const { song_id } = req.body;
         
         // Check playlist belongs to user
@@ -88,10 +96,45 @@ router.post('/:id/songs', requireAuth, async (req, res) => {
     }
 });
 
+// DELETE /api/playlists/:id/songs/batch - Remove multiple songs from playlist
+router.delete('/:id/songs/batch', requireAuth, async (req, res) => {
+    try {
+        const pool = getPool(req.session.role || 'user');
+        const { song_ids } = req.body;
+        if (!Array.isArray(song_ids) || song_ids.length === 0) {
+            console.log("Batch delete: invalid song_ids:", song_ids);
+            return res.status(400).json({ error: 'song_ids must be a non-empty array' });
+        }
+
+        // Check playlist belongs to user
+        const [pl] = await pool.query('SELECT * FROM playlists WHERE playlist_id = ? AND user_id = ?', 
+            [req.params.id, req.session.userId]);
+        if (pl.length === 0) {
+            console.log("Batch delete: Not your playlist. ID:", req.params.id, "User:", req.session.userId);
+            return res.status(403).json({ error: 'Not your playlist' });
+        }
+
+        const placeholders = song_ids.map(() => '?').join(',');
+        console.log("Batch delete: Deleting songs", song_ids, "from playlist", req.params.id);
+        await pool.query(`DELETE FROM playlist_songs WHERE playlist_id = ? AND song_id IN (${placeholders})`,
+            [req.params.id, ...song_ids]);
+        res.json({ success: true });
+    } catch (err) {
+        console.error("Batch delete error:", err);
+        res.status(500).json({ error: 'Failed to remove batch songs' });
+    }
+});
+
 // DELETE /api/playlists/:id/songs/:songId - Remove song from playlist
 router.delete('/:id/songs/:songId', requireAuth, async (req, res) => {
     try {
-        const pool = getPool(req.session.role || \'user\');
+        const pool = getPool(req.session.role || 'user');
+        
+        // Check playlist belongs to user
+        const [pl] = await pool.query('SELECT * FROM playlists WHERE playlist_id = ? AND user_id = ?', 
+            [req.params.id, req.session.userId]);
+        if (pl.length === 0) return res.status(403).json({ error: 'Not your playlist' });
+
         await pool.query('DELETE FROM playlist_songs WHERE playlist_id = ? AND song_id = ?',
             [req.params.id, req.params.songId]);
         res.json({ success: true });
@@ -103,7 +146,7 @@ router.delete('/:id/songs/:songId', requireAuth, async (req, res) => {
 // DELETE /api/playlists/:id - Delete playlist
 router.delete('/:id', requireAuth, async (req, res) => {
     try {
-        const pool = getPool(req.session.role || \'user\');
+        const pool = getPool(req.session.role || 'user');
         await pool.query('DELETE FROM playlists WHERE playlist_id = ? AND user_id = ?',
             [req.params.id, req.session.userId]);
         res.json({ success: true });
@@ -115,7 +158,7 @@ router.delete('/:id', requireAuth, async (req, res) => {
 // POST /api/playlists/:id/songs/batch - Add multiple songs to playlist
 router.post('/:id/songs/batch', requireAuth, async (req, res) => {
     try {
-        const pool = getPool(req.session.role || \'user\');
+        const pool = getPool(req.session.role || 'user');
         const { song_ids } = req.body;
         if (!Array.isArray(song_ids) || song_ids.length === 0) return res.status(400).json({ error: 'song_ids must be a non-empty array' });
         
@@ -132,25 +175,10 @@ router.post('/:id/songs/batch', requireAuth, async (req, res) => {
     }
 });
 
-// DELETE /api/playlists/:id/songs/batch - Remove multiple songs from playlist
-router.delete('/:id/songs/batch', requireAuth, async (req, res) => {
-    try {
-        const pool = getPool(req.session.role || \'user\');
-        const { song_ids } = req.body;
-        if (!Array.isArray(song_ids) || song_ids.length === 0) return res.status(400).json({ error: 'song_ids must be a non-empty array' });
-
-        await pool.query('DELETE FROM playlist_songs WHERE playlist_id = ? AND song_id IN (?)',
-            [req.params.id, song_ids]);
-        res.json({ success: true });
-    } catch (err) {
-        res.status(500).json({ error: 'Failed to remove batch songs' });
-    }
-});
-
 // GET /api/playlists/:id/recommendations - Get song recommendations based on playlist content
 router.get('/:id/recommendations', requireAuth, async (req, res) => {
     try {
-        const pool = getPool(req.session.role || \'user\');
+        const pool = getPool(req.session.role || 'user');
         
         // Find genres and artists present in the playlist
         const [features] = await pool.query(`

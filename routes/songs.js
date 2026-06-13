@@ -20,7 +20,7 @@ const songsLimiter = rateLimit({
 // GET /api/songs - Get all songs with filters
 router.get('/', songsLimiter, async (req, res) => {
     try {
-        const pool = getPool(req.session.role || \'user\');
+        const pool = getPool(req.session.role || 'user');
         const { artist, genre, album, search, sort } = req.query;
         const userId = req.session.userId || null;
         
@@ -58,7 +58,7 @@ router.get('/', songsLimiter, async (req, res) => {
 // GET /api/songs/artists - Get all artists
 router.get('/artists', songsLimiter, async (req, res) => {
     try {
-        const pool = getPool(req.session.role || \'user\');
+        const pool = getPool(req.session.role || 'user');
         const [artists] = await pool.query('SELECT * FROM artists ORDER BY artist_name');
         res.json(artists);
     } catch (err) {
@@ -69,7 +69,7 @@ router.get('/artists', songsLimiter, async (req, res) => {
 // GET /api/songs/genres - Get all genres
 router.get('/genres', songsLimiter, async (req, res) => {
     try {
-        const pool = getPool(req.session.role || \'user\');
+        const pool = getPool(req.session.role || 'user');
         const [genres] = await pool.query('SELECT * FROM genres ORDER BY genre_name');
         res.json(genres);
     } catch (err) {
@@ -80,7 +80,7 @@ router.get('/genres', songsLimiter, async (req, res) => {
 // GET /api/songs/albums - Get all albums
 router.get('/albums', songsLimiter, async (req, res) => {
     try {
-        const pool = getPool(req.session.role || \'user\');
+        const pool = getPool(req.session.role || 'user');
         const [albums] = await pool.query(`SELECT al.*, a.artist_name FROM albums al 
             LEFT JOIN artists a ON al.artist_id = a.artist_id ORDER BY al.title`);
         res.json(albums);
@@ -92,7 +92,7 @@ router.get('/albums', songsLimiter, async (req, res) => {
 // POST /api/songs/:id/like - Toggle like
 router.post('/:id/like', async (req, res) => {
     try {
-        const pool = getPool(req.session.role || \'user\');
+        const pool = getPool(req.session.role || 'user');
         const userId = req.session.userId;
         if (!userId) return res.status(401).json({ error: 'Login required' });
 
@@ -114,7 +114,7 @@ router.post('/:id/like', async (req, res) => {
 // POST /api/songs/:id/listen - Record a listen
 router.post('/:id/listen', async (req, res) => {
     try {
-        const pool = getPool(req.session.role || \'user\');
+        const pool = getPool(req.session.role || 'user');
         const userId = req.session.userId;
         if (!userId) return res.status(401).json({ error: 'Login required' });
 
@@ -131,7 +131,7 @@ router.post('/:id/listen', async (req, res) => {
 // GET /api/songs/liked - Get user's liked songs
 router.get('/liked', async (req, res) => {
     try {
-        const pool = getPool(req.session.role || \'user\');
+        const pool = getPool(req.session.role || 'user');
         const userId = req.session.userId;
         if (!userId) return res.status(401).json({ error: 'Login required' });
 

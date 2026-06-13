@@ -162,7 +162,7 @@ router.get('/tracks/:id', jamendoLimiter, async (req, res) => {
 
 router.get('/play/:id', jamendoLimiter, async (req, res) => {
     try {
-        const pool = getPool(req.session.role || \'user\');
+        const pool = getPool(req.session.role || 'user');
         const trackId = parseInt(req.params.id, 10);
         if (isNaN(trackId)) {
             return res.status(400).json({ error: 'Invalid track ID' });
@@ -215,7 +215,7 @@ router.get('/albums', jamendoLimiter, async (req, res) => {
 
 router.post('/seed', async (req, res) => {
     try {
-        const pool = getPool(req.session.role || \'user\');
+        const pool = getPool(req.session.role || 'user');
         await seedFromJamendo(pool);
         res.json({ success: true, message: 'Jamendo data seeded successfully' });
     } catch (err) {

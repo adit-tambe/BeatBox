@@ -381,7 +381,7 @@ async function openAiCompatibleResponse(client, modelName, message, systemInstru
 // POST /api/ai/recommend
 router.post('/recommend', aiLimiter, async (req, res) => {
     try {
-        const pool = getPool(req.session.role || \'user\');
+        const pool = getPool(req.session.role || 'user');
         const rawMessage = req.body.message || '';
         const message = sanitizeInput(rawMessage);
 
