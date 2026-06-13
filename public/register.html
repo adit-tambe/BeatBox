@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Create your BeatBox account and start streaming music.">
+    <title>BeatBox — Register</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="auth-page">
+        <div class="auth-card">
+            <div class="logo">
+                <h1>🎵 BeatBox</h1>
+                <p>Create your account</p>
+            </div>
+
+            <div class="auth-error" id="registerError"></div>
+            <div class="auth-success" id="registerSuccess"></div>
+
+            <form id="registerForm" autocomplete="on">
+                <div class="form-group">
+                    <label for="regName">Name</label>
+                    <input type="text" id="regName" placeholder="Your name" required>
+                </div>
+                <div class="form-group">
+                    <label for="regEmail">Email</label>
+                    <input type="email" id="regEmail" placeholder="you@example.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="regPassword">Password</label>
+                    <input type="password" id="regPassword" placeholder="Min 8 chars, 1 letter, 1 number" required>
+                </div>
+                <div class="form-group">
+                    <label for="regDob">Date of Birth</label>
+                    <input type="date" id="regDob">
+                </div>
+                <button type="submit" class="btn btn-primary" id="regBtn">Create Account</button>
+            </form>
+
+            <div class="switch-link">
+                Already have an account? <a href="index.html">Sign in</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+</body>
+</html>

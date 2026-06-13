@@ -1,0 +1,25 @@
+{
+  "name": "beatbox",
+  "version": "1.0.0",
+  "description": "BeatBox - Music Playlist Management System",
+  "main": "server.js",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.24.1",
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "express-rate-limit": "^8.5.2",
+    "express-session": "^1.17.3",
+    "helmet": "^8.2.0",
+    "mysql2": "^3.6.0",
+    "openai": "^6.42.0",
+    "validator": "^13.15.35"
+  }
+}

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="BeatBox — Your personal music universe. Login to start streaming.">
+    <title>BeatBox — Login</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="auth-page">
+        <div class="auth-card">
+            <div class="logo">
+                <h1>🎵 BeatBox</h1>
+                <p>Your personal music universe</p>
+            </div>
+
+            <div class="auth-error" id="loginError"></div>
+
+            <form id="loginForm" autocomplete="on">
+                <div class="form-group">
+                    <label for="loginEmail">Email</label>
+                    <input type="email" id="loginEmail" placeholder="you@example.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Password</label>
+                    <input type="password" id="loginPassword" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="btn btn-primary" id="loginBtn">Sign In</button>
+            </form>
+
+            <div class="switch-link">
+                Don't have an account? <a href="register.html">Create one</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+</body>
+</html>

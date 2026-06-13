@@ -1,0 +1,84 @@
+-- BeatBox Seed Data
+USE beatbox;
+
+-- Insert Genres
+INSERT INTO genres (genre_name) VALUES
+('Pop'), ('Rock'), ('Hip-Hop'), ('R&B'), ('Electronic'),
+('Jazz'), ('Classical'), ('Country'), ('Indie'), ('Metal');
+
+-- Insert Artists
+INSERT INTO artists (artist_name, country, debut_year) VALUES
+('Taylor Swift', 'USA', 2006),
+('Ed Sheeran', 'UK', 2011),
+('Drake', 'Canada', 2009),
+('Adele', 'UK', 2008),
+('The Weeknd', 'Canada', 2010),
+('Billie Eilish', 'USA', 2015),
+('BTS', 'South Korea', 2013),
+('Dua Lipa', 'UK', 2015),
+('Kendrick Lamar', 'USA', 2004),
+('Arctic Monkeys', 'UK', 2002),
+('Arijit Singh', 'India', 2005),
+('A.R. Rahman', 'India', 1992),
+('Coldplay', 'UK', 1996),
+('Eminem', 'USA', 1996),
+('Post Malone', 'USA', 2015);
+
+-- Insert Albums
+INSERT INTO albums (title, artist_id, release_year) VALUES
+('1989', 1, 2014),
+('Divide', 2, 2017),
+('Scorpion', 3, 2018),
+('25', 4, 2015),
+('After Hours', 5, 2020),
+('Happier Than Ever', 6, 2021),
+('Map of the Soul', 7, 2020),
+('Future Nostalgia', 8, 2020),
+('DAMN.', 9, 2017),
+('AM', 10, 2013),
+('Aashiqui 2', 11, 2013),
+('Slumdog Millionaire', 12, 2008),
+('A Head Full of Dreams', 13, 2015),
+('The Eminem Show', 14, 2002),
+('Hollywoods Bleeding', 15, 2019);
+
+-- Insert Songs
+INSERT INTO songs (title, duration, release_date, album_id, genre_id, artist_id, play_count) VALUES
+('Shake It Off', 219, '2014-08-18', 1, 1, 1, 2500000),
+('Blank Space', 231, '2014-11-10', 1, 1, 1, 3200000),
+('Shape of You', 234, '2017-01-06', 2, 1, 2, 5800000),
+('Perfect', 263, '2017-03-03', 2, 1, 2, 4100000),
+('Gods Plan', 198, '2018-01-19', 3, 3, 3, 3500000),
+('In My Feelings', 217, '2018-07-10', 3, 3, 3, 2800000),
+('Hello', 295, '2015-10-23', 4, 1, 4, 4500000),
+('Someone Like You', 285, '2011-01-24', 4, 1, 4, 3900000),
+('Blinding Lights', 200, '2019-11-29', 5, 1, 5, 6200000),
+('Save Your Tears', 215, '2020-08-09', 5, 4, 5, 3100000),
+('Bad Guy', 194, '2019-03-29', 6, 1, 6, 4800000),
+('Happier Than Ever', 298, '2021-07-30', 6, 9, 6, 2200000),
+('Dynamite', 199, '2020-08-21', 7, 1, 7, 5100000),
+('Butter', 164, '2021-05-21', 7, 1, 7, 4300000),
+('Levitating', 203, '2020-03-27', 8, 1, 8, 3700000),
+('Dont Start Now', 183, '2019-11-01', 8, 5, 8, 3400000),
+('HUMBLE.', 177, '2017-03-30', 9, 3, 9, 4100000),
+('DNA.', 185, '2017-04-14', 9, 3, 9, 2900000),
+('Do I Wanna Know', 272, '2013-06-19', 10, 2, 10, 3800000),
+('R U Mine', 202, '2012-02-27', 10, 2, 10, 2600000),
+('Tum Hi Ho', 262, '2013-04-16', 11, 4, 11, 7500000),
+('Chahun Main Ya Naa', 295, '2013-04-16', 11, 4, 11, 3200000),
+('Jai Ho', 325, '2008-10-12', 12, 1, 12, 5500000),
+('Hymn for the Weekend', 258, '2016-01-25', 13, 2, 13, 4200000),
+('Fix You', 295, '2005-09-05', 13, 2, 13, 3800000),
+('Lose Yourself', 326, '2002-10-28', 14, 3, 14, 6100000),
+('Without Me', 290, '2002-05-26', 14, 3, 14, 4900000),
+('Sunflower', 158, '2018-10-18', 15, 3, 15, 5200000),
+('Circles', 215, '2019-08-30', 15, 1, 15, 4600000),
+('Rockstar', 218, '2017-09-15', 15, 3, 15, 3900000);
+
+-- Insert admin user (password: admin123)
+INSERT INTO users (name, email, password_hash, date_of_birth, subscription_type, is_admin) VALUES
+('Admin', 'admin@beatbox.com', '$2a$10$AeTPd0V4tASXgntPDMGg.OWE0B4SUEtyqIOJRodzdNoTbKTEOqLai', '2000-01-01', 'premium', TRUE);
+
+-- Insert demo user (password: user123)
+INSERT INTO users (name, email, password_hash, date_of_birth, subscription_type, is_admin) VALUES
+('Demo User', 'user@beatbox.com', '$2a$10$SM2ajaCeCMXdE02qQkqQ0O8t/QzOFTpbrkNYoFYRSjFAJcaqqIALW', '2002-05-15', 'free', FALSE);
